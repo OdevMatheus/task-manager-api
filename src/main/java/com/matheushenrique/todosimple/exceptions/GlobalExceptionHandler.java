@@ -2,6 +2,8 @@ package com.matheushenrique.todosimple.exceptions;
 
 
 
+import com.matheushenrique.todosimple.services.exceptions.AuthorizationException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -122,6 +124,42 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler imple
             HttpStatus httpStatus,
             WebRequest request) {
         return buildErrorResponse(exception, exception.getMessage(), httpStatus, request);
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ResponseEntity<Object> handleAuthenticationException(
+            AuthenticationException authenticationException,
+            WebRequest request) {
+        log.error("Authentication error ", authenticationException);
+        return buildErrorResponse(
+                authenticationException,
+                HttpStatus.UNAUTHORIZED,
+                request);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ResponseEntity<Object> handleAccessDeniedException(
+            AccessDeniedException accessDeniedException,
+            WebRequest request) {
+        log.error("Authorization error ", accessDeniedException);
+        return buildErrorResponse(
+                accessDeniedException,
+                HttpStatus.FORBIDDEN,
+                request);
+    }
+
+    @ExceptionHandler(AuthorizationException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ResponseEntity<Object> handleAuthorizationException(
+            AuthorizationException authorizationException,
+            WebRequest request) {
+        log.error("Authorization error ", authorizationException);
+        return buildErrorResponse(
+                authorizationException,
+                HttpStatus.FORBIDDEN,
+                request);
     }
 
     private ResponseEntity<Object> buildErrorResponse(

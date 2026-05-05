@@ -1,16 +1,20 @@
 package com.matheushenrique.todosimple.services;
 
+import com.matheushenrique.todosimple.Security.UserSS;
 import com.matheushenrique.todosimple.models.User;
 import com.matheushenrique.todosimple.models.enums.ProfileEnum;
 import com.matheushenrique.todosimple.repositories.TaskRepository;
 import com.matheushenrique.todosimple.repositories.UserRepository;
+import com.matheushenrique.todosimple.services.exceptions.AuthorizationException;
 import com.matheushenrique.todosimple.services.exceptions.DataBindingViolationException;
 import com.matheushenrique.todosimple.services.exceptions.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -28,6 +32,11 @@ public class UserService {
     private TaskRepository taskRepository;
 
     public User findById(Long id) {
+        UserSS userSS = authenticated();
+        if (Objects.nonNull(userSS) || !userSS.hasRole(ProfileEnum.ADMIN) && !id.equals(userSS.getId()))
+            throw new AuthorizationException("Acesso negado!");
+
+
         Optional<User> user = this.userRepository.findById(id);
         return user.orElseThrow(() -> new ObjectNotFoundException(
                 "Usuário não foi encontrado! Id: " + id + ", Tipo: " + User.class.getName()
@@ -61,6 +70,14 @@ public class UserService {
 
             throw new DataBindingViolationException("Não é possível excluir devido a dependências existentes!");
 
+        }
+    }
+
+    public static UserSS authenticated() {
+        try {
+            return (UserSS) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        } catch (Exception e) {
+            return null;
         }
     }
 }
