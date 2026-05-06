@@ -33,7 +33,7 @@ public class UserService {
 
     public User findById(Long id) {
         UserSS userSS = authenticated();
-        if (Objects.nonNull(userSS) || !userSS.hasRole(ProfileEnum.ADMIN) && !id.equals(userSS.getId()))
+        if (Objects.nonNull(userSS) && !userSS.hasRole(ProfileEnum.ADMIN) && !id.equals(userSS.getId()))
             throw new AuthorizationException("Acesso negado!");
 
 
