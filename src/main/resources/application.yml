@@ -1,17 +1,33 @@
-spring.profiles.active=dev
+server:
+  error:
+    include-exception: true
 
-spring.output.ansi.enable=ALWAYS
+spring:
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:prod}
+  output:
+    ansi:
+      enabled: ALWAYS
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/todosimple?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false}
+    username: ${SPRING_DATASOURCE_USERNAME:root}
+    password: ${SPRING_DATASOURCE_PASSWORD:root}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: ${SPRING_JPA_SHOW_SQL:false}
 
-# Database configs
-spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
-spring.datasource.url=
-spring.datasource.username=
-spring.datasource.password=
-spring.jpa.hibernate.ddl-auto=update
-spring.jpa.show-sql=true
+jwt:
+  secret: ${JWT_SECRET:db5c03797c4ed524fbc2248d74a863fdd179ace905c36d75a467b6e8ca7bc305}
+  expiration: 86400000
 
-
-server.error.include-exception=true
-
-jwt.secret=db5c03797c4ed524fbc2248d74a863fdd179ace905c36d75a467b6e8ca7bc305
-jwt.expiration=86400000
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update

@@ -1,0 +1,33 @@
+# Build
+**/target/
+**/*.jar
+**/*.war
+
+# IDEs
+**/.idea/
+**/.vscode/
+**/.settings/
+**/.classpath/
+**/.project/
+*.iml
+*.iws
+*.ipr
+
+# Docker e Config
+**/.env
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+**/.git
+**/.gitignore
+
+**/README.md
+**/HELP.md
+**/CITATION.cff
+**/LICENSE
+**/docs/
+**/.editorconfig
+
+**/.DS_Store
+**/Thumbs.db

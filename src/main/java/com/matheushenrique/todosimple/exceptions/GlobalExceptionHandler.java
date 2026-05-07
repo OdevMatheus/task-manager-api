@@ -36,7 +36,7 @@ import java.io.IOException;
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler implements AuthenticationFailureHandler {
 
-    @Value("${server.error.include-exception}")
+    @Value("${server.error.include-exception:false}")
     private boolean printStackTrace;
 
     @Override

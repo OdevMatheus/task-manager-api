@@ -1,0 +1,39 @@
+version: "3.8"
+
+services:
+  mysqldb:
+    image: mysql:5.7
+    restart: unless-stopped
+    # Valores padrão caso o .env não exista
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQLDB_ROOT_PASSWORD:-root}
+      - MYSQL_DATABASE=${MYSQLDB_DATABASE:-todosimple}
+    ports:
+      - "${MYSQLDB_LOCAL_PORT:-3306}:3306"
+    volumes:
+      - mysqlvolume:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQLDB_ROOT_PASSWORD:-root}" ]
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    container_name: todosimpleapp
+    restart: on-failure
+    ports:
+      - "${SPRING_LOCAL_PORT:-8080}:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysqldb:3306/${MYSQLDB_DATABASE:-todosimple}?useSSL=false&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=${MYSQLDB_ROOT_PASSWORD:-root}
+    depends_on:
+      mysqldb:
+        condition: service_healthy # só vai subir se o MySQL estiver pronto
+    stdin_open: true
+    tty: true
+
+volumes:
+  mysqlvolume:
