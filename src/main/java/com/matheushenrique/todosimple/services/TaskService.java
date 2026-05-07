@@ -4,6 +4,7 @@ import com.matheushenrique.todosimple.Security.UserSS;
 import com.matheushenrique.todosimple.models.Task;
 import com.matheushenrique.todosimple.models.User;
 import com.matheushenrique.todosimple.models.enums.ProfileEnum;
+import com.matheushenrique.todosimple.models.projection.TaskProjection;
 import com.matheushenrique.todosimple.repositories.TaskRepository;
 import com.matheushenrique.todosimple.services.exceptions.AuthorizationException;
 import com.matheushenrique.todosimple.services.exceptions.DataBindingViolationException;
@@ -34,13 +35,13 @@ public class TaskService {
         return task;
     }
 
-    public List<Task> findAllByUser() {
+    public List<TaskProjection> findAllByUser() {
 
         UserSS userSS = UserService.authenticated();
         if (Objects.isNull(userSS))
             throw new AuthorizationException("Acesso negado!");
 
-        List<Task> tasks = this.taskRepository.findByUser_id(userSS.getId());
+        List<TaskProjection> tasks = this.taskRepository.findByUser_id(userSS.getId());
         return tasks;
     }
 
