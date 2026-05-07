@@ -1,0 +1,17 @@
+spring.profiles.active=dev
+
+spring.output.ansi.enable=ALWAYS
+
+# Database configs
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+spring.datasource.url=
+spring.datasource.username=
+spring.datasource.password=
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+
+
+server.error.include-exception=true
+
+jwt.secret=db5c03797c4ed524fbc2248d74a863fdd179ace905c36d75a467b6e8ca7bc305
+jwt.expiration=86400000
