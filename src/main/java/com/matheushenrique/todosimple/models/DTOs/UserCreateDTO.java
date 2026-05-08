@@ -7,11 +7,14 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import java.util.Set;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 public class UserCreateDTO {
+
+    private Set<Integer> profiles;
 
     @NotBlank
     @Size(min = 2, max = 100)
