@@ -4,8 +4,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.springframework.web.context.annotation.ApplicationScope;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -17,16 +18,10 @@ import java.util.Objects;
 public class ErrorResponse {
     private final int status;
     private final String message;
-    private String stackTrace;
     private List<ValidationError> errors;
+    private String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
 
-    @Getter
-    @Setter
-    @RequiredArgsConstructor
-    public static class ValidationError {
-    private final String field;
-    private final String message;
-    }
+    public record ValidationError(String field, String message) {}
 
     public void addvalidationError(String field, String message) {
         if (Objects.isNull(errors)) {
@@ -36,8 +31,9 @@ public class ErrorResponse {
     }
 
     public String toJson() {
-        return "{\"status\": " + getStatus() + ", " +
-                "\"message\": \"" + getMessage() + "\"}";
+        return String.format(
+                "{\"timestamp\": \"%s\", \"status\": %d, \"message\": \"%s\"}",
+                timestamp, status, message
+        );
     }
-
 }

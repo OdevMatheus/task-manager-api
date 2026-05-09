@@ -2,7 +2,8 @@ package com.matheushenrique.todosimple.Security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.matheushenrique.todosimple.exceptions.GlobalExceptionHandler;
-import com.matheushenrique.todosimple.models.User;
+import com.matheushenrique.todosimple.models.DTOs.LoginRequestDTO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -16,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 
+@Slf4j
 public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private AuthenticationManager authenticationManager;
@@ -26,21 +28,26 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         setAuthenticationFailureHandler(new GlobalExceptionHandler());
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
+        setFilterProcessesUrl("/user/login");
     }
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request,
                                                 HttpServletResponse response) throws AuthenticationException {
         try {
-            User userCredentials = new ObjectMapper().readValue(request.getInputStream(), User.class);
+            LoginRequestDTO credentials = new ObjectMapper()
+                    .readValue(request.getInputStream(), LoginRequestDTO.class);
 
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                    userCredentials.getUsername(), userCredentials.getPassword(), new ArrayList<>());
+                    credentials.getUsername(),
+                    credentials.getPassword(),
+                    new ArrayList<>()
+            );
 
-            Authentication authentication = this.authenticationManager.authenticate(authToken);
-            return authentication;
-        } catch (Exception e) {
-            throw new RuntimeException();
+            return this.authenticationManager.authenticate(authToken);
+        } catch (IOException e) {
+            log.error("Erro ao ler credenciais do corpo da requisição", e);
+            throw new RuntimeException("Falha na autenticação: corpo da requisição inválido");
         }
     }
 

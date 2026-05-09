@@ -36,9 +36,6 @@ import java.io.IOException;
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler implements AuthenticationFailureHandler {
 
-    @Value("${server.error.include-exception:false}")
-    private boolean printStackTrace;
-
     @Override
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
@@ -72,15 +69,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler imple
     @ExceptionHandler(DataIntegrityViolationException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ResponseEntity<Object> handleDataIntegrityViolationException(
-            DataIntegrityViolationException dataIntegrityViolationException,
-            WebRequest request) {
-        String errorMessage = dataIntegrityViolationException.getMostSpecificCause().getMessage();
-        log.error("Failed to save entity with integrity problems: " + errorMessage, dataIntegrityViolationException);
-        return buildErrorResponse(
-                dataIntegrityViolationException,
-                errorMessage,
-                HttpStatus.CONFLICT,
-                request);
+            DataIntegrityViolationException ex, WebRequest request) {
+        String errorMessage = "Erro de integridade de dados. Verifique se há registros duplicados ou violações de restrição.";
+        log.error("Conflito de integridade: ", ex);
+        return buildErrorResponse(ex, errorMessage, HttpStatus.CONFLICT, request);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
@@ -168,9 +160,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler imple
             HttpStatus httpStatus,
             WebRequest request) {
         ErrorResponse errorResponse = new ErrorResponse(httpStatus.value(), message);
-        if (this.printStackTrace) {
-            errorResponse.setStackTrace(ExceptionUtils.getStackTrace(exception));
-        }
         return ResponseEntity.status(httpStatus).body(errorResponse);
     }
 
@@ -184,5 +173,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler imple
         response.getWriter().append(errorResponse.toJson());
     }
 
+    @ExceptionHandler(org.springframework.web.method.annotation.MethodArgumentTypeMismatchException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<Object> handleMethodArgumentTypeMismatch(
+            org.springframework.web.method.annotation.MethodArgumentTypeMismatchException ex,
+            WebRequest request) {
+        String errorMessage = String.format("O parâmetro '%s' com valor '%s' não pôde ser convertido para o tipo '%s'",
+                ex.getName(), ex.getValue(), ex.getRequiredType().getSimpleName());
+        log.error(errorMessage);
+        return buildErrorResponse(ex, errorMessage, HttpStatus.BAD_REQUEST, request);
+    }
 
 }

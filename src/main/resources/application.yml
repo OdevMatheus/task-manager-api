@@ -1,6 +1,6 @@
 server:
   error:
-    include-exception: true
+    include-exception: false
 
 spring:
   profiles:
@@ -10,13 +10,18 @@ spring:
       enabled: ALWAYS
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/todosimple?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false}
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/todosimple?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC}
     username: ${SPRING_DATASOURCE_USERNAME:root}
     password: ${SPRING_DATASOURCE_PASSWORD:root}
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     show-sql: ${SPRING_JPA_SHOW_SQL:false}
+    defer-datasource-initialization: true
+
+cors:
+  allowed:
+    origins: ${CORS_ALLOWED_ORIGINS:*}
 
 jwt:
   secret: ${JWT_SECRET:db5c03797c4ed524fbc2248d74a863fdd179ace905c36d75a467b6e8ca7bc305}
@@ -27,7 +32,10 @@ spring:
   config:
     activate:
       on-profile: dev
+  sql:
+    init:
+      mode: always
   jpa:
     show-sql: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: create

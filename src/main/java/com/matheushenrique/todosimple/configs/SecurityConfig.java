@@ -4,6 +4,7 @@ import com.matheushenrique.todosimple.Security.JWTAuthenticationFilter;
 import com.matheushenrique.todosimple.Security.JWTAuthorizationFilter;
 import com.matheushenrique.todosimple.Security.JWTUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -21,6 +22,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -35,13 +37,25 @@ public class SecurityConfig {
     @Autowired
     private JWTUtil jwtUtil;
 
+    @Value("${cors.allowed.origins:*}")
+    private List<String> allowedOrigins;
+
     public static final String[] PUBLIC_MATCHERS = {
             "/"
     };
 
     public static final String[] PUBLIC_MATCHERS_POST = {
             "/user",
-            "/login"
+            "/login",
+            "/user/login"
+    };
+
+    private static final String[] SWAGGER_WHITELIST = {
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html",
+            "/swagger-resources/**",
+            "/webjars/**"
     };
 
     @Bean
@@ -56,6 +70,7 @@ public class SecurityConfig {
         this.authenticationManager = authenticationManagerBuilder.build();
 
         http.authorizeRequests()
+                .antMatchers(SWAGGER_WHITELIST).permitAll()
                 .antMatchers(HttpMethod.POST, PUBLIC_MATCHERS_POST).permitAll()
                 .antMatchers(PUBLIC_MATCHERS).permitAll()
                 .anyRequest().authenticated().and()
@@ -70,8 +85,10 @@ public class SecurityConfig {
 
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration().applyPermitDefaultValues();
-        configuration.setAllowedMethods(Arrays.asList("POST", "GET", "DELETE"));
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(allowedOrigins); //
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));
         final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
