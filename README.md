@@ -1,4 +1,6 @@
 # Task Manager API
+English version: [EN_README.md](EN_README.md)
+
 Nota: Este projeto foi desenvolvido sob o codinome interno TodoSimple.
 
 A TodoSimpleAPI é uma API RESTful para gerenciamento de tarefas desenvolvida com Java 17 e Spring Boot 2.7.2, projeto focado na aplicação de padrões de arquitetura backend e segurança stateless com JWT, tratamento centralizado de erros e documentação interativa com OpenAPI 3 / Swagger UI.
@@ -109,8 +111,7 @@ http://localhost:8080/swagger-ui.html
 
 ### 4. Utilizar as credenciais padrão
 
-O banco é inicializado automaticamente pelo script `src/main/resources/import.sql`, que cria um usuário administrativo padrão.
-
+O banco de dados é inicializado automaticamente pelos scripts src/main/resources/schema.sql e src/main/resources/data.sql para simplificar o ambiente de desenvolvimento local e a execução de testes automatizados.
 Credenciais iniciais:
 
 ```text
@@ -197,7 +198,7 @@ Além disso, há separação de perfis de execução via Spring Profiles, com su
 
 ### Banco de dados e inicialização
 
-O ambiente é preparado com banco MySQL em container e inicialização automática de dados por meio de `import.sql`. Isso permite que a aplicação esteja pronta para teste imediatamente após a subida dos containers.
+O ambiente é preparado com banco MySQL em container e inicialização automática de dados por meio de `schema.sql` e `data.sql`. Isso permite que a aplicação esteja pronta para teste imediatamente após a subida dos containers.
 
 ## Endpoints principais para validação
 
