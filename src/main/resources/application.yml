@@ -15,9 +15,12 @@ spring:
     password: ${SPRING_DATASOURCE_PASSWORD:root}
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: none
     show-sql: ${SPRING_JPA_SHOW_SQL:false}
     defer-datasource-initialization: true
+  sql:
+    init:
+      mode: always
 
 cors:
   allowed:
@@ -38,4 +41,4 @@ spring:
   jpa:
     show-sql: true
     hibernate:
-      ddl-auto: create
+      ddl-auto: none
