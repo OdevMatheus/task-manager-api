@@ -58,21 +58,21 @@ public class UserService {
     @Transactional
     public User update(User obj) {
         User newObj = findById(obj.getId());
-        newObj.setPassword(obj.getPassword());
         newObj.setPassword(this.bCryptPasswordEncoder.encode(obj.getPassword()));
         return this.userRepository.save(newObj);
     }
 
     public void delete(Long id) {
+        UserSS userSpringSecurity = authenticated();
+        if (Objects.nonNull(userSpringSecurity) && id.equals(userSpringSecurity.getId())) {
+            throw new DataBindingViolationException("Não é possível excluir o próprio usuário autenticado!");
+        }
+
         findById(id);
         try {
-
             this.userRepository.deleteById(id);
-
         } catch (Exception e) {
-
-            throw new DataBindingViolationException("Não é possível excluir devido a dependências existentes!");
-
+            throw new DataBindingViolationException("Não é possível excluir pois há entidades relacionadas!");
         }
     }
 
@@ -82,6 +82,13 @@ public class UserService {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    @Transactional
+    public void updateProfiles(Long id, java.util.Set<Integer> profileCodes) {
+        User user = findById(id);
+        user.setProfiles(profileCodes);
+        this.userRepository.save(user);
     }
 
     public User fromDTO(@Valid UserCreateDTO obj) {

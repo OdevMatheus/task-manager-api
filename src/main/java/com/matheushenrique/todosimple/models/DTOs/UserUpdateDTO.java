@@ -19,6 +19,4 @@ public class UserUpdateDTO {
     @Size(min = 8, max = 60)
     private String password;
 
-    private Set<Integer> profiles;
-
 }

@@ -3,6 +3,7 @@ package com.matheushenrique.todosimple.models;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -51,7 +52,10 @@ public class User {
     private Set<Integer> profiles = new HashSet<>();
 
     public Set<ProfileEnum> getProfiles() {
-        return this.profiles.stream().map(x -> ProfileEnum.toEnum(x)).collect(Collectors.toSet());
+        if (Objects.isNull(this.profiles)) {
+            return new HashSet<>();
+        }
+        return this.profiles.stream().map(ProfileEnum::toEnum).collect(Collectors.toSet());
     }
 
     public void addProfile(ProfileEnum profileEnum) {

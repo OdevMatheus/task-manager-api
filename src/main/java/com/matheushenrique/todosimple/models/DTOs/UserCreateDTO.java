@@ -14,8 +14,6 @@ import java.util.Set;
 @Data
 public class UserCreateDTO {
 
-    private Set<Integer> profiles;
-
     @NotBlank
     @Size(min = 2, max = 100)
     private String username;
