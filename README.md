@@ -5,6 +5,19 @@ A TodoSimpleAPI é uma API RESTful para gerenciamento de tarefas desenvolvida co
 
 O projeto foi estruturado para seguir padrões utilizados em ambientes produtivos, com separação clara de responsabilidades, persistência com JPA/Hibernate, controle de acesso por perfis e execução isolada por Docker Compose. A proposta é servir como base de estudo para boas práticas de desenvolvimento backend profissional.
 
+## Sumario
+- [Stack tecnológica](#stack-tecnológica)
+- [Arquitetura e Implementação](#arquitetura-e-implementação)
+- [Guia rápido de teste](#guia-rápido-de-teste)
+- [Fluxo de autenticacao e autorizacao](#fluxo-de-autenticação-e-autorização)
+- [Documentacao da API](#documentação-da-api)
+- [Estrutura simplificada do projeto](#estrutura-simplificada-do-projeto)
+- [Configuração de ambiente](#configuração-de-ambiente)
+- [Endpoints principais para validação](#endpoints-principais-para-validação)
+- [Decisões de Implementação](#decisões-de-implementação)
+- [Autor](#autor)
+- [Contato](#contato)
+
 ## Stack tecnológica
 
 | Camada | Tecnologia                  | Finalidade |
@@ -216,4 +229,4 @@ Matheus Henrique de Araujo.
 ## Contato
 
 [![LinkedIn](https://img.shields.io/badge/linkedin-%230077B5.svg?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/matheus-henrique-araujo/)
-[![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/MatheusAraj)
+[![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/OdevMatheus)
