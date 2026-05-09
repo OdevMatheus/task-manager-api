@@ -10,6 +10,8 @@ import com.matheushenrique.todosimple.services.exceptions.AuthorizationException
 import com.matheushenrique.todosimple.services.exceptions.DataBindingViolationException;
 import com.matheushenrique.todosimple.services.exceptions.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,23 +37,24 @@ public class TaskService {
         return task;
     }
 
-    public List<TaskProjection> findAllByUser() {
-
-        UserSS userSS = UserService.authenticated();
-        if (Objects.isNull(userSS))
+    public Page<TaskProjection> findAllByUser(Pageable pageable) {
+        UserSS userSpringSecurity = UserService.authenticated();
+        if (Objects.isNull(userSpringSecurity))
             throw new AuthorizationException("Acesso negado!");
-
-        List<TaskProjection> tasks = this.taskRepository.findByUser_id(userSS.getId());
-        return tasks;
+        return this.taskRepository.findByUser_Id(userSpringSecurity.getId(), pageable);
     }
 
     @Transactional
-    public Task create(Task obj) {
+    public Task create(Task obj, Long userId) {
         UserSS userSS = UserService.authenticated();
         if (Objects.isNull(userSS))
             throw new AuthorizationException("Acesso negado!");
 
-        User user = this.userService.findById(userSS.getId());
+        Long targetUserId = Objects.nonNull(userId) ? userId : userSS.getId();
+        if (!userSS.hasRole(ProfileEnum.ADMIN) && !targetUserId.equals(userSS.getId()))
+            throw new AuthorizationException("Acesso negado!");
+
+        User user = this.userService.findById(targetUserId);
         obj.setId(null);
         obj.setUser(user);
         obj = this.taskRepository.save(obj);

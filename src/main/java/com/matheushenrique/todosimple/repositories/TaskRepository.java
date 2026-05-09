@@ -2,15 +2,15 @@ package com.matheushenrique.todosimple.repositories;
 
 import com.matheushenrique.todosimple.models.Task;
 import com.matheushenrique.todosimple.models.projection.TaskProjection;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 @Repository
 public interface TaskRepository extends JpaRepository<Task, Long> {
 
-    List<TaskProjection> findByUser_id(Long id);
+    Page<TaskProjection> findByUser_Id(Long id, Pageable pageable);
 
     //@Query(value = "SELECT t FROM Task t WHERE t.user.id = :id")
     //List<Task> findByUserId(@Param("id" Long id));
