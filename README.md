@@ -1,233 +1,174 @@
-# Task Manager API
-English version: [EN_README.md](EN_README.md)
+# Task Manager API (TodoSimple)
+🇧🇷 **Versão em Português:** [README.pt-br.md](README.pt-br.md)
 
-Nota: Este projeto foi desenvolvido sob o codinome interno TodoSimple.
+An enterprise-ready RESTful API for task management built with **Java 17** and **Spring Boot 2.7**. This project focuses on applying production-grade backend architecture, stateless JWT security, centralized exception handling, and interactive OpenAPI documentation.
 
-A TodoSimpleAPI é uma API RESTful para gerenciamento de tarefas desenvolvida com Java 17 e Spring Boot 2.7.2, projeto focado na aplicação de padrões de arquitetura backend e segurança stateless com JWT, tratamento centralizado de erros e documentação interativa com OpenAPI 3 / Swagger UI.
+<div align="center">
 
-O projeto foi estruturado para seguir padrões utilizados em ambientes produtivos, com separação clara de responsabilidades, persistência com JPA/Hibernate, controle de acesso por perfis e execução isolada por Docker Compose. A proposta é servir como base de estudo para boas práticas de desenvolvimento backend profissional.
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Matheus%20Henrique-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/matheus-henrique-araujo)
+[![GitHub](https://img.shields.io/badge/GitHub-OdevMatheus-121011?style=for-the-badge&logo=github&logoColor=white)](https://github.com/OdevMatheus)
 
-## Sumario
-- [Stack tecnológica](#stack-tecnológica)
-- [Arquitetura e Implementação](#arquitetura-e-implementação)
-- [Guia rápido de teste](#guia-rápido-de-teste)
-- [Fluxo de autenticacao e autorizacao](#fluxo-de-autenticação-e-autorização)
-- [Documentacao da API](#documentação-da-api)
-- [Estrutura simplificada do projeto](#estrutura-simplificada-do-projeto)
-- [Configuração de ambiente](#configuração-de-ambiente)
-- [Endpoints principais para validação](#endpoints-principais-para-validação)
-- [Decisões de Implementação](#decisões-de-implementação)
-- [Autor](#autor)
-- [Contato](#contato)
+</div>
 
-## Stack tecnológica
+---
 
-| Camada | Tecnologia                  | Finalidade |
-| --- |-----------------------------| --- |
-| Linguagem | Java 17                     | Base da aplicação, com suporte a recursos modernos da plataforma Java. |
-| Framework | Spring Boot 2.7.2           | Estrutura principal da API REST e orquestração do ecossistema Spring. |
-| Segurança | Spring Security + JWT       | Autenticação e autorização stateless com validação por token. |
-| Persistência | Spring Data JPA + Hibernate | Mapeamento objeto-relacional e acesso ao banco de dados. |
-| Banco de dados | MySQL 5.7                   | Persistência relacional em ambiente containerizado. |
-| Documentação | OpenAPI 3 / Swagger UI      | Catálogo interativo de endpoints e testes da API. |
-| Infraestrutura | Docker + Docker Compose     | Provisionamento consistente do ambiente de execução. |
-| Produtividade | Maven + Lombok              | Build, dependências e redução de boilerplate. |
+## What is this?
 
-## Arquitetura e Implementação
+This repository contains a robust Task Management API developed as a reference study for professional Java backend development. It implements a layered architecture, strong input validation, and profile-based security, ensuring a secure and containerized ecosystem out of the box.
 
-### Arquitetura em camadas
+---
 
-O código segue uma organização clássica e sustentável em camadas, com responsabilidades bem delimitadas entre `Controller`, `Service`, `Repository` e `DTO`. Essa abordagem facilita manutenção, testabilidade e evolução do domínio sem acoplamento excessivo entre entrada HTTP e entidades persistentes.
+## Technology Stack
 
-### DTOs para proteção e validação de entrada
+| Layer | Technology | Purpose |
+| :--- | :--- | :--- |
+| **Language** | Java 17 | Core programming language leveraging modern syntax features. |
+| **Framework** | Spring Boot 2.7.2 | Base orchestrator for REST endpoints, dependency injection, and security. |
+| **Security** | Spring Security + JWT | Stateless authentication and role-based authorization via cryptographically signed tokens. |
+| **Database** | MySQL 5.7 | Relational persistence in containerized instances. |
+| **Persistence** | Spring Data JPA + Hibernate | Object-Relational Mapping (ORM) and clean repository patterns. |
+| **Documentation** | OpenAPI 3 / Swagger UI | Interactive API explorer, playground, and contract schema spec. |
+| **Infrastructure** | Docker / Podman | Consistent runtime replication through Compose environments. |
+| **Build Tool** | Maven | Package management, project lifecycles, and build automation. |
 
-As operações de cadastro e atualização de usuários utilizam `UserCreateDTO` e `UserUpdateDTO` para desacoplar a API da entidade de domínio. Isso reduz exposição indevida de atributos internos, melhora a consistência da validação e reforça o controle sobre os dados aceitos pela camada de aplicação.
+---
 
-### Segurança e autenticação com JWT
+## Architecture & Design Patterns
 
-A autenticação e a autorização são implementadas com Spring Security e JWT, utilizando filtros customizados no ciclo de vida da requisição:
+- **Layered Architecture:** Follows a strict separation of concerns through `Controllers` (presentation), `Services` (business logic), `Repositories` (data access), and `DTOs` (data transfer).
+- **Data Transfer Objects (DTOs):** Employs explicit DTOs (`UserCreateDTO`, `UserUpdateDTO`, `TaskCreateDTO`) to isolate persistence models from HTTP endpoints. This blocks over-posting attacks and enhances data safety.
+- **Secure Credentials:** Passwords are salted and hashed using `BCryptPasswordEncoder` prior to persistence.
+- **Centralized Exception Handling:** Standardized error responses are intercepting all controller exceptions via `GlobalExceptionHandler`, mapping them to structured `ErrorResponse` JSON schemas.
+- **Pagination & Read Optimizations:** Task listing uses Spring's `Pageable` and custom database projection interfaces (`TaskProjection`) for memory-efficient and fast database queries.
 
-- `JWTAuthenticationFilter`: responsável por processar as credenciais e emitir o token após autenticação bem-sucedida.
-- `JWTAuthorizationFilter`: responsável por validar o token nas requisições subsequentes e reconstruir o contexto de segurança.
+---
 
-O resultado é uma API stateless, apropriada para integração com clientes web, ferramentas de teste e arquiteturas desacopladas.
+## How to Run
 
-### Controle de acesso por perfis
+### 📋 Prerequisites
 
-O projeto adota hierarquia de acesso baseada em roles com suporte a `ROLE_ADMIN` e `ROLE_USER`, representadas por `ProfileEnum` com códigos explícitos. Esse desenho favorece rastreabilidade, leitura de domínio e expansão futura de permissões sem perda de clareza.
+Before starting, ensure you have the following installed on your machine:
+* **Java 17 JDK** and **Maven** (if running locally outside containers)
+* A container engine: **Docker** (with Docker Compose) OR **Podman** (with `podman-compose` / compose provider)
 
-### Persistência segura de credenciais
+---
 
-As senhas são persistidas com `BCryptPasswordEncoder`, garantindo armazenamento com hash forte e alinhado às recomendações de segurança para aplicações backend.
+### 🚀 Quick Start (Containerized Environment)
 
-### Resiliência e tratamento centralizado de exceções
+We provide seamless container orchestration. Follow these steps to spin up the application and the database:
 
-Erros são tratados de forma consistente por meio de `GlobalExceptionHandler`, que padroniza respostas em JSON com `ErrorResponse`. Essa estratégia melhora a previsibilidade da API, simplifica o consumo pelo cliente e reduz divergências entre cenários de validação, autorização e falhas de domínio.
+#### 1. Setup the Environment File
+The container environment relies on variables defined in a `.env` file. You **MUST** clone the example file before running:
 
-### Otimização de leitura com JPA Projections
+* **Linux / macOS:**
+  ```bash
+  cp .env.example .env
+  ```
+* **Windows (Command Prompt):**
+  ```cmd
+  copy .env.example .env
+  ```
+* **Windows (PowerShell):**
+  ```powershell
+  Copy-Item .env.example .env
+  ```
 
-Consultas específicas utilizam `TaskProjection` para retornar apenas os campos necessários em determinadas operações, reduzindo tráfego de dados e favorecendo performance em cenários de leitura.
+> 💡 **Troubleshooting Port Collisions:** By default, the application runs on port `8080` and MySQL on port `3306`. If these ports are already in use on your host machine, open the `.env` file and change `SPRING_LOCAL_PORT` (e.g., to `8081`) and `MYSQLDB_LOCAL_PORT` (e.g., to `3307`).
 
-### Paginação de Resultados
+#### 2. Start the Services
+Run the following command depending on your container engine:
 
-Os endpoints de listagem de tarefas utilizam a interface Pageable do Spring Data. Isso permite que grandes volumes de dados sejam processados de forma eficiente, retornando metadados sobre o total de elementos e páginas disponíveis, reduzindo o tráfego de rede e a carga no servidor.
+* **Using Docker:**
+  ```bash
+  docker compose up --build
+  ```
+* **Using Podman (Fully Supported!):**
+  ```bash
+  podman compose up --build
+  ```
 
-## Guia rápido de teste
+> ⚠️ **Database Healthcheck Note:** The application container is configured with a healthcheck dependency (`depends_on.mysqldb.condition: service_healthy`). The API will wait for the MySQL container to completely boot and become healthy before launching its Tomcat server. This prevents premature startup database connection crashes.
 
-### 1. Subir o ambiente
+#### 3. Stopping the Environment
+To stop and remove containers along with their persisted database volumes, run:
+```bash
+# Docker
+docker compose down -v
 
-O fluxo recomendado para execução local é via Docker Compose:
-
-```powershell
-docker-compose up --build
+# Podman
+podman compose down -v
 ```
 
-Esse comando provisiona a aplicação e o banco de dados em containers isolados.
+---
 
-### 2. Considerar o arquivo `.env`
+## Testing & Authentication Flow
 
-As variáveis sensíveis e de ambiente devem ser centralizadas em um arquivo `.env`, o que melhora portabilidade e evita hardcoding de credenciais no repositório.
+### 1. Default Pre-Seeded Credentials
+Upon database startup, the schema is automatically populated via `schema.sql` and `data.sql` with a default administrator account:
+* **Username:** `admin`
+* **Password:** `admin`
 
-Exemplo de variáveis esperadas pelo ambiente:
+### 2. Interactive Swagger UI Documentation
+Open your web browser and navigate to:
+👉 **[http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)**
 
-```env
-MYSQLDB_USER=root
-MYSQLDB_ROOT_PASSWORD=root
-MYSQLDB_DATABASE=todosimple
-MYSQLDB_LOCAL_PORT=3306
-MYSQLDB_DOCKER_PORT=3306
+### 3. Step-by-Step Login and Authorization Flow
+Because the security is stateless (JWT), you must authenticate to access protected endpoints:
 
-SPRING_LOCAL_PORT=8080
-SPRING_DOCKER_PORT=8080
-```
+1. **Obtain the Token:** Send a login request using the Swagger UI playground or `curl`:
+   ```bash
+   curl -i -X POST http://localhost:8080/user/login \
+     -H "Content-Type: application/json" \
+     -d '{"username": "admin", "password": "admin"}'
+   ```
+2. **Copy the Token:** Copy the token string returned inside the `Authorization` response header (excluding the `Bearer ` prefix).
+   * Format returned: `Authorization: Bearer <your-jwt-token>`
+3. **Authorize in Swagger:**
+   - Click the green **Authorize** button at the top-right of the Swagger page.
+   - Paste your copied JWT token directly into the input field.
+   - Click **Authorize**, then **Close**.
+4. **Interact:** You can now query, create, update, and delete users or tasks as an authenticated administrator!
 
-### 3. Abrir a documentação da API
+---
 
-Com os containers ativos, a documentação interativa fica disponível em:
-
-```text
-http://localhost:8080/swagger-ui.html
-```
-
-### 4. Utilizar as credenciais padrão
-
-O banco de dados é inicializado automaticamente pelos scripts src/main/resources/schema.sql e src/main/resources/data.sql para simplificar o ambiente de desenvolvimento local e a execução de testes automatizados.
-Credenciais iniciais:
-
-```text
-username: admin
-password: admin
-```
-
-### 5. Fazer login e obter o token
-
-Execute o endpoint de autenticação no Swagger:
-
-```http
-POST /user/login
-```
-
-Envie o payload:
-
-```json
-{
-  "username": "admin",
-  "password": "admin"
-}
-```
-
-O token JWT será retornado no cabeçalho `Authorization` da resposta, utilizando o formato `Bearer <token>`.
-
-### 6. Autorizar as próximas requisições no Swagger
-
-No Swagger UI, acesse o botão `Authorize` e informe o valor completo recebido no header `Authorization`, incluindo o prefixo `Bearer `. Após essa etapa, os endpoints protegidos passarão a ser executados com a identidade autenticada.
-
-### 7. Validar os principais fluxos
-
-Fluxo recomendado de exploração inicial:
-
-```text
-1. Login com admin/admin
-2. Autorizar o Swagger com Bearer Token
-3. Consultar endpoints de usuário e tarefa
-4. Criar, atualizar e excluir registros autenticado
-5. Validar o comportamento de erros e permissões
-```
-
-### 8. Para parar os containers e apagar volumes persistidos (banco de dados)
-```powershell
-docker-compose down -v
-```
-
-## Fluxo de autenticação e autorização
-
-1. O cliente envia as credenciais ao endpoint `POST /user/login`.
-2. `JWTAuthenticationFilter` intercepta a requisição e valida usuário e senha.
-3. Após autenticação bem-sucedida, a aplicação emite um JWT assinado.
-4. O token é enviado pelo cliente nas requisições seguintes no header `Authorization`.
-5. `JWTAuthorizationFilter` valida a assinatura, a expiração e o contexto do usuário.
-6. O Spring Security aplica as regras de acesso conforme a role atribuída ao usuário autenticado.
-
-## Documentação da API
-
-A documentação foi configurada com OpenAPI 3 e Swagger UI, incluindo esquema de segurança `bearerAuth` para facilitar a execução dos endpoints protegidos e a validação da jornada de autenticação.
-
-## Estrutura simplificada do projeto
+## Project Structure
 
 ```text
 src/main/java/com/matheushenrique/todosimple
-├── configs
-├── controllers
-├── exceptions
-├── models
-│   ├── DTOs
-│   ├── enums
-│   └── projection
-├── repositories
-├── Security
-└── services
+├── configs/       # Configurations (Security, CORS, OpenAPI/Swagger)
+├── controllers/   # REST Controllers (User and Task endpoints)
+├── exceptions/    # Global handlers and structured error responses
+├── models/        # Database models, DTOs, projections, and enums
+│   ├── DTOs/      # UserCreateDTO, UserUpdateDTO, TaskCreateDTO
+│   ├── enums/     # ProfileEnum (ADMIN/USER privileges)
+│   └── projection/# TaskProjection for fast, query-optimized responses
+├── repositories/  # Database repository abstraction layers
+├── Security/      # JWT validation filters and Auth details
+└── services/      # Business logic services & custom exceptions
 ```
 
-## Configuração de ambiente
+---
 
-### Variáveis e perfis
+## Main Endpoints
 
-O projeto utiliza variáveis de ambiente para desacoplar a configuração da aplicação do código-fonte. Essa prática facilita execução local, pipelines de integração contínua e promoção entre ambientes.
+| Method | Endpoint | Authorization | Description |
+| :--- | :--- | :--- | :--- |
+| **POST** | `/user` | Public | Register a new user |
+| **POST** | `/user/login` | Public | Autenticate and obtain a JWT Token |
+| **GET** | `/user/{id}` | Authenticated | Retrieve user details by ID |
+| **PUT** | `/user/{id}` | Authenticated | Update user information (such as password) |
+| **PATCH**| `/user/{id}/profiles` | **Admin Only** | Change user role privileges (e.g., promote to Admin) |
+| **GET** | `/task/{id}` | Authenticated | Retrieve a specific task by ID |
+| **GET** | `/task/user` | Authenticated | List all tasks associated with the authenticated user (Paged) |
+| **POST** | `/task/{userId}` | Authenticated | Create a new task linked to a specific user |
+| **PUT** | `/task/{id}` | Authenticated | Update a task description |
+| **DELETE**| `/task/{id}` | Authenticated | Permanently delete a task |
 
-Além disso, há separação de perfis de execução via Spring Profiles, com suporte a ajustes específicos para desenvolvimento e produção.
+---
 
-### Banco de dados e inicialização
+## Author
 
-O ambiente é preparado com banco MySQL em container e inicialização automática de dados por meio de `schema.sql` e `data.sql`. Isso permite que a aplicação esteja pronta para teste imediatamente após a subida dos containers.
+**Matheus Henrique de Araujo**
 
-## Endpoints principais para validação
-
-| Método | Endpoint               | Finalidade |
-|--------|------------------------| --- |
-| POST   | `/user`                | Criar usuário. |
-| POST   | `/user/login`          | Autenticar e obter JWT. |
-| GET    | `/user/{id}`           | Consultar usuário autenticado ou autorizado. |
-| PUT    | `/user/{id}`           | Atualizar dados do usuário. |
-| PATCH  |  `/user/{id}/profiles` |  Promover cargo/perfil (Acesso exclusivo ADMIN). |
-| GET    | `/task/{id}`           | Consultar tarefa específica. |
-| GET    | `/task/user`           | Listar tarefas do usuário autenticado. |
-| POST   | `/task/{userId}`       | Criar tarefa vinculada a um usuário. |
-| PUT    | `/task/{id}`           | Atualizar tarefa. |
-| DELETE | `/task/{id}`           | Remover tarefa. |
-## Decisões de Implementação
-
-- Uso de autenticação e autorização com JWT para garantir um fluxo de segurança stateless em conformidade com padrões de produção.
-- Desacoplamento entre a camada de entrada HTTP e o modelo de persistência através de DTOs, visando integridade e segurança dos dados.
-- Centralização do tratamento de exceções para fornecer respostas padronizadas e previsíveis ao cliente da API.
-- Implementação de controle de acesso baseado em perfis (Roles) para segmentação de permissões administrativas e de usuário comum.
-- Documentação automatizada para facilitar a integração, validação e testes dos endpoints.
-- Provisionamento via containerização para assegurar a paridade do ambiente entre desenvolvimento e execução.
-
-## Autor
-
-Matheus Henrique de Araujo.
-
-## Contato
-
-[![LinkedIn](https://img.shields.io/badge/linkedin-%230077B5.svg?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/matheus-henrique-araujo/)
-[![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/OdevMatheus)
+* [LinkedIn](https://www.linkedin.com/in/matheus-henrique-araujo/)
+* [GitHub](https://github.com/OdevMatheus)
